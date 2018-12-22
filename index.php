@@ -17,11 +17,11 @@
   echo '&#10084; <a href="viewprofile.php">View Profile</a><br />';
   echo '&#10084; <a href="editprofile.php">Edit Profile</a><br />';
 
-  // Connect to the database 
-  $dbc = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME); 
+  // Connect to the database
+  $dbc = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 
   // Retrieve the user data from MySQL
-  $query = "SELECT user_id, first_name, picture FROM mismatch_user WHERE first_name IS NOT NULL ORDER BY join_date DESC LIMIT 5";
+  $query = "SELECT user_id, first_name, picture FROM " . DB_USER_TABLE . " WHERE first_name IS NOT NULL ORDER BY join_date DESC LIMIT 5";
   $data = mysqli_query($dbc, $query);
 
   // Loop through the array of user data, formatting it as HTML
@@ -41,5 +41,5 @@
   mysqli_close($dbc);
 ?>
 
-</body> 
+</body>
 </html>

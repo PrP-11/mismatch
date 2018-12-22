@@ -17,7 +17,7 @@
   $user_password = mysqli_real_escape_string($dbc, trim($_SERVER['PHP_AUTH_PW']));
 
   // Look up the username and password in the database
-  $query = "SELECT user_id, username FROM mismatch_user WHERE username = '$user_username' AND password = SHA('$user_password')";
+  $query = "SELECT user_id, username FROM " . DB_USER_TABLE . " WHERE username = '$user_username' AND password = SHA('$user_password')";
   $data = mysqli_query($dbc, $query);
 
   if (mysqli_num_rows($data) == 1) {
