@@ -16,7 +16,7 @@
   //Connect to the database
   $dbc = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 
-  if(isset($_POST['Submit'])){
+  if(isset($_POST['submit'])){
     // Grab the sign in data from the post
     $username = mysqli_real_escape_string($dbc, trim($_POST['username']));
     $password = mysqli_real_escape_string($dbc, trim($_POST['password']));
@@ -30,12 +30,12 @@
           //username is available
           $query = "INSERT INTO mismatch_user (username, password, join_date) VALUES ".
             "('$username', SHA('$password'), NOW())";
-          mysql_query($dbc, $query);
+          mysqli_query($dbc, $query);
 
           //Confirm success with the user
-          echo '<p>You have been successfully registered. You and npw log in and'.
+          echo '<p>You have been successfully registered. You can now log in and'.
             '<a href="editprofile.php">edit your profile</a>.</p>';
-          mysql_close($dbc);
+          mysqli_close($dbc);
           exit();
         }
         else{
@@ -64,7 +64,7 @@
     <label for="verify_password">Verify password:</label>
     <input type="password" id="verify_password" name="verify_password" /><br />
   </fieldset>
-  <input type="submit" name="submit" value="Sign UP" />
+  <input type="submit" name="submit" value="Sign Up" />
 </form>
 </body>
 </html>
