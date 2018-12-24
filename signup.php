@@ -1,7 +1,7 @@
 <?php
 
   //Insert the page header
-  $page_title='Log In';
+  $page_title='Sign Up';
   require_once('templates/header.php');
 
   // Nav menu
