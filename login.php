@@ -1,11 +1,12 @@
 <?php
+  // Start the session
+  require_once('templates/startsession.php');
+
   require_once('connectvars.php');
 
   // Clear the error message
   $error_msg = "";
 
-  // Start the session
-  session_start();
   // If the user isn't logged in, try to log them in
   if(!isset($_SESSION['user_id'])){
     if(isset($_POST['submit'])){
@@ -42,15 +43,13 @@
       }
     }
   }
+  //Insert the page header
+  $page_title='Log In';
+  require_once('templates/header.php');
+
+  // Nav menu
+  require_once('templates/navmenu.php');
 ?>
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <title>Mismatch - Log In</title>
-  </head>
-  <body>
-    <h3>Mismatch - Log In</h3>
     <?php
       // If the cookie is empty, show any error message and the login form; otherise confirm the login
       if(empty($_SESSION['user_id'])){
@@ -77,5 +76,7 @@
           header('Location: ' . $home_url);
       }
     ?>
-  </body>
-</html>
+<?php
+ // Insert the footer
+ require_once('templates/footer.php');
+ ?>

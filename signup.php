@@ -1,15 +1,12 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-  <title>Mismatch - Sign Up</title>
-  <link rel="stylesheet" type="text/css" href="style.css" />
-</head>
-<body>
-  <h3>Mismatch - Sign Up</h3>
-
 <?php
+
+  //Insert the page header
+  $page_title='Log In';
+  require_once('templates/header.php');
+
+  // Nav menu
+  require_once('templates/navmenu.php');
+
   require_once('appvars.php');
   require_once('connectvars.php');
 
@@ -66,5 +63,7 @@
   </fieldset>
   <input type="submit" name="submit" value="Sign Up" />
 </form>
-</body>
-</html>
+<?php
+ // Insert the footer
+ require_once('templates/footer.php');
+ ?>
