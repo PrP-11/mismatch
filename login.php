@@ -4,8 +4,10 @@
   // Clear the error message
   $error_msg = "";
 
+  // Start the session
+  session_start();
   // If the user isn't logged in, try to log them in
-  if(!isset($_COOKIE['user_id'])){
+  if(!isset($_SESSION['user_id'])){
     if(isset($_POST['submit'])){
       // Connect to the db
       $dbc = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
@@ -22,8 +24,10 @@
         if(mysqli_num_rows($data) == 1){
           // login is verified
           $row = mysqli_fetch_array($data);
-          setcookie('user_id', $row['user_id']);
-          setcookie('username', $row['username']);
+          $_SESSION['user_id'] = $row['user_id'];
+          $_SESSION['username'] = $row['username'];
+          setcookie('user_id', $row['user_id'], time() + (60*60*24*30)); //expires in 30 days
+          setcookie('username', $row['username'], time() + (60*60*24*30)); //expires in 30 days
           $home_url = 'http://'. $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']).'/index.php';
           header('Location: ', $home_url);
         }
@@ -49,7 +53,7 @@
     <h3>Mismatch - Log In</h3>
     <?php
       // If the cookie is empty, show any error message and the login form; otherise confirm the login
-      if(empty($_COOKIE['user_id'])){
+      if(empty($_SESSION['user_id'])){
         echo '<p class="error">' . $error_msg . '</p>';
     ?>
         <form action="<?php echo $_SERVER['PHP_SELF']; ?>" method="post">
@@ -66,7 +70,7 @@
       }
       else{
         // COnfirm the login
-        echo('<p class="login">You are logged in as '. $_COOKIE['username'] .'.</p>');
+        echo('<p class="login">You are logged in as '. $_SESSION['username'] .'.</p>');
 
           // Redirect to the home page
           $home_url = 'http://' . $_SERVER['HTTP_HOST'] . dirname($_SERVER['PHP_SELF']) . '/index.php';

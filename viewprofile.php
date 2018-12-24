@@ -1,6 +1,15 @@
 <?php
-  require_once('login.php');
+  session_start();
+
+  // If the session vars aren't set, try to set them with a cookie
+  if (!isset($_SESSION['user_id'])) {
+    if (isset($_COOKIE['user_id']) && isset($_COOKIE['username'])) {
+      $_SESSION['user_id'] = $_COOKIE['user_id'];
+      $_SESSION['username'] = $_COOKIE['username'];
+    }
+  }
 ?>
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -16,15 +25,24 @@
   require_once('appvars.php');
   require_once('connectvars.php');
 
+  // Make sure the user is logged in before going any further.
+  if (!isset($_SESSION['user_id'])) {
+    echo '<p class="login">Please <a href="login.php">log in</a> to access this page.</p>';
+    exit();
+  }
+  else {
+    echo('<p class="login">You are logged in as ' . $_SESSION['username'] . '. <a href="logout.php">Log out</a>.</p>');
+  }
+
   // Connect to the database
   $dbc = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
 
   // Grab the profile data from the database
   if (!isset($_GET['user_id'])) {
-    $query = "SELECT username, first_name, last_name, gender, birthdate, city, state, picture FROM " . DB_USER_TABLE . " WHERE user_id = '$user_id'";
+    $query = "SELECT username, first_name, last_name, gender, birthdate, city, state, picture FROM mismatch_user WHERE user_id = '" . $_SESSION['user_id'] . "'";
   }
   else {
-    $query = "SELECT username, first_name, last_name, gender, birthdate, city, state, picture FROM " . DB_USER_TABLE . " WHERE user_id = '" . $_GET['user_id'] . "'";
+    $query = "SELECT username, first_name, last_name, gender, birthdate, city, state, picture FROM mismatch_user WHERE user_id = '" . $_GET['user_id'] . "'";
   }
   $data = mysqli_query($dbc, $query);
 
@@ -55,7 +73,7 @@
       echo '</td></tr>';
     }
     if (!empty($row['birthdate'])) {
-      if (!isset($_GET['user_id']) || ($user_id == $_GET['user_id'])) {
+      if (!isset($_GET['user_id']) || ($_SESSION['user_id'] == $_GET['user_id'])) {
         // Show the user their own birthdate
         echo '<tr><td class="label">Birthdate:</td><td>' . $row['birthdate'] . '</td></tr>';
       }
@@ -73,7 +91,7 @@
         '" alt="Profile Picture" /></td></tr>';
     }
     echo '</table>';
-    if (!isset($_GET['user_id']) || ($user_id == $_GET['user_id'])) {
+    if (!isset($_GET['user_id']) || ($_SESSION['user_id'] == $_GET['user_id'])) {
       echo '<p>Would you like to <a href="editprofile.php">edit your profile</a>?</p>';
     }
   } // End of check for a single row of user results

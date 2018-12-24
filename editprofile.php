@@ -1,6 +1,15 @@
 <?php
-  require_once('login.php');
+  session_start();
+
+  // If the session vars aren't set, try to set them with a cookie
+  if (!isset($_SESSION['user_id'])) {
+    if (isset($_COOKIE['user_id']) && isset($_COOKIE['username'])) {
+      $_SESSION['user_id'] = $_COOKIE['user_id'];
+      $_SESSION['username'] = $_COOKIE['username'];
+    }
+  }
 ?>
+
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
@@ -15,6 +24,15 @@
 <?php
   require_once('appvars.php');
   require_once('connectvars.php');
+
+  // Make sure the user is logged in before going any further.
+  if (!isset($_SESSION['user_id'])) {
+    echo '<p class="login">Please <a href="login.php">log in</a> to access this page.</p>';
+    exit();
+  }
+  else {
+    echo('<p class="login">You are logged in as ' . $_SESSION['username'] . '. <a href="logout.php">Log out</a>.</p>');
+  }
 
   // Connect to the database
   $dbc = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
@@ -38,7 +56,9 @@
     if (!empty($new_picture)) {
       if ((($new_picture_type == 'image/gif') || ($new_picture_type == 'image/jpeg') || ($new_picture_type == 'image/pjpeg') ||
         ($new_picture_type == 'image/png')) && ($new_picture_size > 0) && ($new_picture_size <= MM_MAXFILESIZE) &&
-        ($new_picture_width <= MM_MAXIMGWIDTH) && ($new_picture_height <= MM_MAXIMGHEIGHT)) {        if ($_FILES['file']['error'] == 0) {          // Move the file to the target upload folder
+        ($new_picture_width <= MM_MAXIMGWIDTH) && ($new_picture_height <= MM_MAXIMGHEIGHT)) {
+        if ($_FILES['file']['error'] == 0) {
+          // Move the file to the target upload folder
           $target = MM_UPLOADPATH . basename($new_picture);
           if (move_uploaded_file($_FILES['new_picture']['tmp_name'], $target)) {
             // The new picture file move was successful, now make sure any old picture is deleted
@@ -52,11 +72,15 @@
             $error = true;
             echo '<p class="error">Sorry, there was a problem uploading your picture.</p>';
           }
-        }      }      else {
+        }
+      }
+      else {
         // The new picture file is not valid, so delete the temporary file and set the error flag
         @unlink($_FILES['new_picture']['tmp_name']);
-        $error = true;        echo '<p class="error">Your picture must be a GIF, JPEG, or PNG image file no greater than ' . (MM_MAXFILESIZE / 1024) .
-          ' KB and ' . MM_MAXIMGWIDTH . 'x' . MM_MAXIMGHEIGHT . ' pixels in size.</p>';      }
+        $error = true;
+        echo '<p class="error">Your picture must be a GIF, JPEG, or PNG image file no greater than ' . (MM_MAXFILESIZE / 1024) .
+          ' KB and ' . MM_MAXIMGWIDTH . 'x' . MM_MAXIMGHEIGHT . ' pixels in size.</p>';
+      }
     }
 
     // Update the profile data in the database
@@ -64,12 +88,12 @@
       if (!empty($first_name) && !empty($last_name) && !empty($gender) && !empty($birthdate) && !empty($city) && !empty($state)) {
         // Only set the picture column if there is a new picture
         if (!empty($new_picture)) {
-          $query = "UPDATE " . DB_USER_TABLE . " SET first_name = '$first_name', last_name = '$last_name', gender = '$gender', " .
-            " birthdate = '$birthdate', city = '$city', state = '$state', picture = '$new_picture' WHERE user_id = '$user_id'";
+          $query = "UPDATE mismatch_user SET first_name = '$first_name', last_name = '$last_name', gender = '$gender', " .
+            " birthdate = '$birthdate', city = '$city', state = '$state', picture = '$new_picture' WHERE user_id = '" . $_SESSION['user_id'] . "'";
         }
         else {
-          $query = "UPDATE " . DB_USER_TABLE . " SET first_name = '$first_name', last_name = '$last_name', gender = '$gender', " .
-            " birthdate = '$birthdate', city = '$city', state = '$state' WHERE user_id = '$user_id'";
+          $query = "UPDATE mismatch_user SET first_name = '$first_name', last_name = '$last_name', gender = '$gender', " .
+            " birthdate = '$birthdate', city = '$city', state = '$state' WHERE user_id = '" . $_SESSION['user_id'] . "'";
         }
         mysqli_query($dbc, $query);
 
@@ -86,7 +110,7 @@
   } // End of check for form submission
   else {
     // Grab the profile data from the database
-    $query = "SELECT first_name, last_name, gender, birthdate, city, state, picture FROM " . DB_USER_TABLE . " WHERE user_id = '$user_id'";
+    $query = "SELECT first_name, last_name, gender, birthdate, city, state, picture FROM mismatch_user WHERE user_id = '" . $_SESSION['user_id'] . "'";
     $data = mysqli_query($dbc, $query);
     $row = mysqli_fetch_array($data);
 
