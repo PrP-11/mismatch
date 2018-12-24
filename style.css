@@ -1,3 +1,8 @@
+.footer {
+  text-align: center;
+  font-size: 80%;
+}
+
 .error {
   font-weight: bold;
   color: #FF0000;
@@ -7,7 +12,9 @@
   font-style: italic;
 }
 
-form label {  display: inline-block;  width: 150px;
+form label {
+  display: inline-block;
+  width: 150px;
   font-weight: bold;
 }
 
