@@ -77,7 +77,7 @@
     }
 
     // Display the topic form field
-    echo '<label ' . ($response['response'] == NULL ? 'class="error"' : '') .
+    echo '<label ' . ($response['response'] == 0 ? 'class="error"' : '') .
       ' for="' . $response['response_id'] . '">' . $response['topic_name'] . ':</label>';
     echo '<input type="radio" id="' . $response['response_id'] . '" name="' .
       $response['response_id'] . '" value="1" ' .
