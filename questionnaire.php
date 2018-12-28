@@ -26,7 +26,7 @@
   $data = mysqli_query($dbc, $query);
   if(mysqli_num_rows($data) == 0){
     // Grab the topics from topic table
-    $query = "SELECT topic_id FROM mismatch_topic ORDER BY topic_id";
+    $query = "SELECT topic_id FROM mismatch_topic ORDER BY category_id, topic_id";
     $data = mysqli_query($dbc, $query);
     $topicIds = array();
     while($row = mysqli_fetch_array($data)){
@@ -50,20 +50,16 @@
     echo '<p>Your response have been saved.</p>';
   }
 
-  //Grab the response data from the database to generate the form
-  $query = "SELECT response_id, topic_id, response FROM mismatch_response WHERE user_id='" . $_SESSION['user_id'] . "'";
+  // Grab the response data from the database to generate the form
+  $query = "SELECT mr.response_id, mr.topic_id, mr.response, mt.name AS topic_name, mc.name AS category_name " .
+    "FROM mismatch_response AS mr " .
+    "INNER JOIN mismatch_topic AS mt USING (topic_id) " .
+    "INNER JOIN mismatch_category AS mc USING (category_id) " .
+    "WHERE mr.user_id = '" . $_SESSION['user_id'] . "'";
   $data = mysqli_query($dbc, $query);
   $responses = array();
-  while($row = mysqli_fetch_array($data)){
-    // Look up the topic name from the topic table
-    $query2 = "SELECT name, category FROM mismatch_topic WHERE topic_id = '" . $row['topic_id'] . "'";
-    $data2 = mysqli_query($dbc, $query2);
-    if(mysqli_num_rows($data2) == 1){
-      $row2 = mysqli_fetch_array($data2);
-      $row['topic_name'] = $row2['name'];
-      $row['category_name'] = $row2['category'];
-      array_push($responses, $row);
-    }
+  while ($row = mysqli_fetch_array($data)) {
+    array_push($responses, $row);
   }
 
   mysqli_close($dbc);
