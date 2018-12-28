@@ -16,9 +16,6 @@
     echo '<p class="login">Please <a href="login.php">log in</a> to access this page.</p>';
     exit();
   }
-  else {
-    echo('<p class="login">You are logged in as ' . $_SESSION['username'] . '. <a href="logout.php">Log out</a>.</p>');
-  }
 
   // Connect to the database
   $dbc = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME);
@@ -35,7 +32,7 @@
     $new_picture = mysqli_real_escape_string($dbc, trim($_FILES['new_picture']['name']));
     $new_picture_type = $_FILES['new_picture']['type'];
     $new_picture_size = $_FILES['new_picture']['size'];
-    list($new_picture_width, $new_picture_height) = getimagesize($_FILES['new_picture']['tmp_name']);
+    list($new_picture_width, $new_picture_height) = @getimagesize($_FILES['new_picture']['tmp_name']);
     $error = false;
 
     // Validate and move the uploaded picture file, if necessary
