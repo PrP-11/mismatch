@@ -28,6 +28,7 @@
     $birthdate = mysqli_real_escape_string($dbc, trim($_POST['birthdate']));
     $city = mysqli_real_escape_string($dbc, trim($_POST['city']));
     $state = mysqli_real_escape_string($dbc, trim($_POST['state']));
+    $gender_pref = mysqli_real_escape_string($dbc, trim($_POST['gender_pref']));
     $old_picture = mysqli_real_escape_string($dbc, trim($_POST['old_picture']));
     $new_picture = mysqli_real_escape_string($dbc, trim($_FILES['new_picture']['name']));
     $new_picture_type = $_FILES['new_picture']['type'];
@@ -72,11 +73,11 @@
         // Only set the picture column if there is a new picture
         if (!empty($new_picture)) {
           $query = "UPDATE mismatch_user SET first_name = '$first_name', last_name = '$last_name', gender = '$gender', " .
-            " birthdate = '$birthdate', city = '$city', state = '$state', picture = '$new_picture' WHERE user_id = '" . $_SESSION['user_id'] . "'";
+            " birthdate = '$birthdate', city = '$city', state = '$state', picture = '$new_picture', gender_pref = '$gender_pref' WHERE user_id = '" . $_SESSION['user_id'] . "'";
         }
         else {
           $query = "UPDATE mismatch_user SET first_name = '$first_name', last_name = '$last_name', gender = '$gender', " .
-            " birthdate = '$birthdate', city = '$city', state = '$state' WHERE user_id = '" . $_SESSION['user_id'] . "'";
+            " birthdate = '$birthdate', city = '$city', state = '$state', gender_pref = '$gender_pref' WHERE user_id = '" . $_SESSION['user_id'] . "'";
         }
         mysqli_query($dbc, $query);
 
@@ -93,7 +94,7 @@
   } // End of check for form submission
   else {
     // Grab the profile data from the database
-    $query = "SELECT first_name, last_name, gender, birthdate, city, state, picture FROM mismatch_user WHERE user_id = '" . $_SESSION['user_id'] . "'";
+    $query = "SELECT first_name, last_name, gender, birthdate, city, state, picture, gender_pref FROM mismatch_user WHERE user_id = '" . $_SESSION['user_id'] . "'";
     $data = mysqli_query($dbc, $query);
     $row = mysqli_fetch_array($data);
 
@@ -105,6 +106,7 @@
       $city = $row['city'];
       $state = $row['state'];
       $old_picture = $row['picture'];
+      $gender_pref = $row['gender_pref'];
     }
     else {
       echo '<p class="error">There was a problem accessing your profile.</p>';
@@ -136,9 +138,19 @@
       <input type="hidden" name="old_picture" value="<?php if (!empty($old_picture)) echo $old_picture; ?>" />
       <label for="new_picture">Picture:</label>
       <input type="file" id="new_picture" name="new_picture" />
+
       <?php if (!empty($old_picture)) {
         echo '<img class="profile" src="' . MM_UPLOADPATH . $old_picture . '" alt="Profile Picture" />';
       } ?>
+    </fieldset>
+    <fieldset>
+      <legend>Personal preferences</legend>
+      <label for="gender_pref">Interested in:</label>
+      <select id="gender_pref" name="gender_pref">
+        <option value="" <?php if (!empty($gender_pref)) echo 'selected = "selected"'; ?>>Select a preference</option>
+        <option value="M" <?php if (!empty($gender_pref) && $gender_pref == 'M') echo 'selected = "selected"'; ?>>Male</option>
+        <option value="F" <?php if (!empty($gender_pref) && $gender_pref == 'F') echo 'selected = "selected"'; ?>>Female</option>
+      </select><br />
     </fieldset>
     <input type="submit" value="Save Profile" name="submit" />
   </form>

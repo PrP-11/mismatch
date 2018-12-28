@@ -41,9 +41,21 @@
     $mismatch_user_id = -1;
     $mismatch_topics = array();
 
+    // Get user's gender preference
+    $query = "SELECT gender_pref FROM mismatch_user WHERE user_id='" . $_SESSION['user_id'] . "'";
+    $data = mysqli_query($dbc, $query);
+    $row = mysqli_fetch_array($data);
+    $gender = $row['gender_pref'];
+
     // Loop through the user table comparing other people's response
-    $query = "SELECT user_id FROM mismatch_user WHERE user_id != '" .
-      $_SESSION['user_id'] . "'";
+    if(!empty($gender)){
+      $query = "SELECT user_id FROM mismatch_user WHERE user_id != '" .
+        $_SESSION['user_id'] . "' AND gender = '$gender'";
+    } else {
+      $query = "SELECT user_id FROM mismatch_user WHERE user_id != '" .
+        $_SESSION['user_id'] . "'";
+    }
+
     $data = mysqli_query($dbc, $query);
     while($row = mysqli_fetch_array($data)){
       // Grab the reponse data from the current user
