@@ -27,9 +27,10 @@
   $data = mysqli_query($dbc, $query);
   if(mysqli_num_rows($data) != 0){
     // store user's response in an array
-    $query = "SELECT mr.response_id, mr.topic_id, mr.response, mt.name AS topic_name " .
+    $query = "SELECT mr.response_id, mr.topic_id, mr.response, mt.name AS topic_name, mc.name AS category_name " .
       "FROM mismatch_response AS mr " .
       "INNER JOIN mismatch_topic AS mt USING (topic_id) " .
+      "INNER JOIN mismatch_category AS mc USING (category_id)" .
       "WHERE mr.user_id = '" . $_SESSION['user_id'] . "'";
     $data = mysqli_query($dbc, $query);
     $user_responses = array();
@@ -69,10 +70,12 @@
       // compare responses and calculate total mismatch
       $score = 0;
       $topics = array();
+      $categories = array();
       for($i=0;$i<count($user_responses); $i++){
         if($user_responses[$i]['response'] + $mismatch_responses[$i]['response'] == 3){
           $score += 1;
           array_push($topics, $user_responses[$i]['topic_name']);
+          array_push($categories, $user_responses[$i]['category_name']);
         }
       }
 
@@ -82,9 +85,55 @@
         $mismatch_score = $score;
         $mismatch_user_id = $row['user_id'];
         $mismatch_topics = array_slice($topics, 0);
+        $mismatch_categories = array_slice($categories, 0);
       }
     }
 
+    // Create the categories 2D array
+    $category_stats = array(array($mismatch_categories[0], 0));
+    foreach ($mismatch_categories as $category) {
+      if($category_stats[count($category_stats)-1][0] != $category){
+        array_push($category_stats, array($category, 1));
+      }
+      else{
+        ++$category_stats[count($category_stats)-1][1];
+      }
+    }
+
+    // Function to generate bar graph
+    function draw_bar_graph($width, $height, $data, $max_value, $filename){
+      // Create an empty image
+      $img = imagecreatetruecolor($width, $height);
+
+      // Set graphics color
+      $bg_color = imagecolorallocate($img, 255, 255, 255);// white
+      $text_color = imagecolorallocate($img, 255, 255, 255);// white
+      $bar_color = imagecolorallocate($img, 0, 0, 0); //black
+      $border_color = imagecolorallocate($img, 192, 192, 192); //light grey
+
+      //Fill the background
+      imagefilledrectangle($img, 0, 0, $width, $height, $bg_color);
+
+      // Draw the bars
+      $bar_width = $width/((count($data)*2)+1);
+      for($i=0; $i<count($data); $i++){
+        imagefilledrectangle($img, $bar_width*(2*$i + 1), $height,
+          ($bar_width*2)*($i+1), $height - (($height / $max_value)*$data[$i][1]), $bar_color);
+        imagestringup($img, 5, $bar_width*(2*$i + 1), $height - 5, $data[$i][0], $text_color);
+      }
+
+      // Draw borders
+      imagerectangle($img, 0, 0, $width - 1, $height - 1, $border_color);
+
+      // Draw the range
+      for($i=0; $i<=$max_value; $i++){
+        imagestring($img, 5, 0, $height - ($i*($height/$max_value)), $i, $bar_color);
+      }
+
+      // Write the graph image to a file
+      imagepng($img, $filename, 5);// compression level medium
+      imagedestroy($img);
+    }
     // Check if we found a mismatch
     if($mismatch_user_id!=-1){
       $query = "SELECT username, first_name, last_name, city, state, picture FROM mismatch_user WHERE user_id = '$mismatch_user_id'";
@@ -110,6 +159,11 @@
         foreach($mismatch_topics as $topic){
           echo $topic . '<br />';
         }
+
+        // Display category stats as a bar graph
+        echo '<h4>Mismatched category stats:</h4>';
+        draw_bar_graph(480, 240, $category_stats, 5, MM_UPLOADPATH . $_SESSION['user_id'] . '-mymismatchgraph.png');
+        echo '<img src="' . MM_UPLOADPATH . $_SESSION['user_id'] . '-mymismatchgraph.png" alt="Mismatch category graph" /><br />';
 
         // Provide a link to the mismatch user's profile
         echo '<h4>View <a href=viewprofile.php?user_id=' . $mismatch_user_id . '>'
