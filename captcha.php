@@ -1,5 +1,6 @@
 <?php
-  session_start();
+  // Start the session
+  require_once('templates/startsession.php');
 
   // CAPTCHA constants
   define('CAPTCHA_WIDTH', 180);

@@ -1,6 +1,7 @@
 <?php
   // Start the session
   require_once('templates/startsession.php');
+
   //Insert the page header
   $page_title='Where opposites attract!';
   require_once('templates/header.php');
