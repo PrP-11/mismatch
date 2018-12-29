@@ -68,10 +68,10 @@
     <input type="password" id="password" name="password" /><br />
     <label for="verify_password">Verify password:</label>
     <input type="password" id="verify_password" name="verify_password" /><br /><br />
-    <label for="captcha_image">Human verification:</label>
-    <img src="captcha.php" alt="captcha verification"><br />
-    <label for="captcha">Verify Captcha:</label>
+    <label for="captcha">Captcha:</label>
     <input type="text" id="captcha" name="captcha" /><br />
+    <img id="captcha-image" src="captcha.php" alt="captcha verification">
+    <label class="reload"><a href="<?php echo $_SERVER['PHP_SELF']; ?>">&#x21BB;</a></label>
   </fieldset>
   <input type="submit" name="submit" value="Sign Up" />
 </form>
